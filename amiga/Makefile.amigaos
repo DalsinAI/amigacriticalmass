@@ -1,0 +1,116 @@
+# Critical Mass 1.0.2 for AmigaOS 3.x, 68040/68060 + FPU, on OpenGPU's SDL 1.2
+# (sdl12-compat) and OpenGL.
+#
+#   make -f amiga/Makefile.amigaos -j2 dist \
+#        STOVE=/path/to/openamigagcc-16.2.0-open4 \
+#        NDK=/path/to/OpenNDK/Include_H SDLKIT=/path/to/opengpu-sdk \
+#        DEPS=/path/to/m68k-amigaos
+#
+# The Makefile.am sources of tinyxml, utils (without LZMA), utilssdl,
+# utilsgl and game, with amiga/defines.h for configure's and DATA_DIR the
+# drawer's data/ (the game reads its data/ unpacked: no resource.dat).
+# SDLKIT is the OpenGPU developer kit: libSDL.a (sdl12-compat on
+# SDL2.module), libSDL_gl.a and libGL.a (GL.module), linked in the order
+# sdl-config --libs --gl gives (libSDL_gl.a first). It has no SDL_image or
+# SDL_mixer 1.2: the Team's amiga/sdl_image_lite.c (PNG on libpng) and
+# amiga/sdl_mixer_lite.c (WAV, with libmikmod 3.3.16 for the music:
+# amiga/libmikmod, its player, XM loader and no-sound driver) stand in.
+# libcurl, for the game's online update check, is a stub (no network).
+# DEPS has the Team's static libpng and zlib
+# (/mnt/amigachrome/team2/deps/m68k-amigaos).
+
+STOVE   ?= $(HOME)/CradleLab/toolchain/openamigagcc-16.2.0-open4-x86_64-linux
+NDK     ?= $(HOME)/CradleLab/gfopensdk/OpenNDK/Include_H
+SDLKIT  ?= /mnt/amigachrome/team2/deps/opengpu-sdk
+DEPS    ?= /mnt/amigachrome/team2/deps/m68k-amigaos
+CC      = $(STOVE)/bin/m68k-amigaos-gcc
+CXX     = $(STOVE)/bin/m68k-amigaos-g++
+STRIP   = $(STOVE)/bin/m68k-amigaos-strip
+CPU     ?= -m68040 -m68881
+# -fno-tree-loop-distribute-patterns: GCC 16's loop miscompile (the kit's
+# sdl2-config gives it for GCC 16 too).
+OPT     ?= -O2 -fomit-frame-pointer -fno-tree-loop-distribute-patterns
+
+BUILD   = build/amigaos
+OBJDIR  = $(BUILD)/obj
+PROG    = CriticalMass
+OUT     = dist/CriticalMass
+
+DEFS    = -D__amigaos__ -DNDEBUG -DHAVE_CONFIG_H -DDATA_DIR=\"PROGDIR:data/\"
+INC     = -Iamiga -Iamiga/include -Iamiga/include/SDL -Itinyxml -Iutils -Iutilssdl -Iutilsgl \
+          -Igame -I$(SDLKIT)/include/SDL -I$(SDLKIT)/include -I$(DEPS)/include
+CFLAGS  = -noixemul $(OPT) $(CPU) -fno-common -MMD -MP -w
+CXXFLAGS = $(CFLAGS) $(DEFS) $(INC) -std=gnu++98 -include amiga/defines.h -include amiga/amiga_prefix.hpp
+LDFLAGS = -noixemul $(CPU) -Wl,--wrap=getenv
+LIBS    = -L$(SDLKIT)/lib -L$(DEPS)/lib -lpng -lz -Wl,-u,_SDL12Amiga_gl -lSDL_gl -lSDL -lGL \
+          -lpthread -lm
+
+CXXSRC  = tinyxml/tinyxml.cpp tinyxml/tinyxmlerror.cpp tinyxml/tinyxmlparser.cpp \
+          $(addprefix utils/,Config.cpp Endian.cpp FPS.cpp Random.cpp R250.cpp ResourceManager.cpp \
+            Trace.cpp Value.cpp WalkDirectory.cpp zStream.cpp zStreamBufferImplZLib.cpp) \
+          utilssdl/PNG.cpp utilssdl/zrwops.cpp \
+          $(addprefix utilsgl/,GLBitmapCollection.cpp GLBitmapFont.cpp GLExtension.cpp \
+            GLMultiTexture.cpp GLVertexArrayEXT.cpp GLTexture.cpp GLTextureCubeMap.cpp Model.cpp \
+            TextureManager.cpp gl++.cpp) \
+          $(addprefix game/,ActionCallbacks.cpp Audio.cpp BitmapManager.cpp Callback.cpp \
+            CallbackManager.cpp Camera.cpp EnemyFactory.cpp FontManager.cpp Game.cpp GameState.cpp \
+            Hero.cpp Input.cpp Keys.cpp LPathManager.cpp MenuManager.cpp ModelManager.cpp \
+            OnlineUpdate.cpp OnlineUpdateDisplay.cpp ParticleGroup.cpp ParticleGroupManager.cpp \
+            ParticleType.cpp Particles.cpp SampleManager.cpp ScoreKeeper.cpp Selectable.cpp \
+            SelectableFactory.cpp BaseEnemy.cpp SimpleEnemy.cpp Boss1Enemy.cpp Skill.cpp \
+            StageManager.cpp Starfield.cpp TextInput.cpp Video.cpp Weapon.cpp WeaponDepot.cpp \
+            XMLHelper.cpp main.cpp)
+CSRC    = amiga/stack.c amiga/sdl_image_lite.c amiga/sdl_mixer_lite.c amiga/amiga_env.c \
+          amiga/amiga_start.c
+MIKMOD_SRC = $(wildcard amiga/libmikmod/*.c)
+MIKMOD_CFLAGS = -noixemul -O2 $(CPU) -fno-common -MMD -MP -std=gnu99 -w -DMIKMOD_BUILD \
+          -DMIKMOD_STATIC -DHAVE_LIMITS_H -DHAVE_SNPRINTF -DHAVE_UNISTD_H -DWORDS_BIGENDIAN=1 \
+          -DNO_DEPACKERS -DNO_HQMIXER -Iamiga/libmikmod -I$(NDK)
+
+OBJS    = $(CXXSRC:%.cpp=$(OBJDIR)/%.o) $(CSRC:%.c=$(OBJDIR)/%.o) $(MIKMOD_SRC:%.c=$(OBJDIR)/%.o)
+ICONS   = $(wildcard amiga/icons/*.info)
+
+all: $(BUILD)/$(PROG)
+
+$(BUILD)/$(PROG): $(OBJS)
+	$(CXX) $(LDFLAGS) -o $@.debug $(OBJS) $(LIBS)
+	$(STRIP) -o $@ $@.debug
+
+$(OBJDIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJDIR)/amiga/libmikmod/%.o: amiga/libmikmod/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(MIKMOD_CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/amiga/%.o: amiga/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -std=gnu99 -Iamiga/include/SDL -Iamiga/libmikmod -I$(SDLKIT)/include/SDL \
+	  -I$(DEPS)/include -I$(NDK) -DMIKMOD_STATIC -Wall -c -o $@ $<
+
+# The drawer: the program; data/ with the game's data unpacked (bitmaps,
+# levelpacks, models, paths, sounds, system) and the music (lg-criti.xm);
+# ReadMe, upstream's Readme.html and the licence. The settings and scores
+# are kept in the drawer's user/.critter.
+dist: $(BUILD)/$(PROG) $(ICONS) AMIGA_PORT.md
+	rm -rf $(OUT) && mkdir -p $(OUT)/data
+	cp $(BUILD)/$(PROG) $(OUT)/
+	cp -R data/bitmaps data/levelpacks data/models data/paths data/sounds data/system $(OUT)/data/
+	cp data/music/lg-criti.xm data/music/Readme.txt $(OUT)/data/
+	find $(OUT)/data -name 'Makefile*' -delete
+	cp AMIGA_PORT.md $(OUT)/ReadMe
+	cp Readme.html $(OUT)/
+	cp COPYING $(OUT)/COPYING.txt
+	cp amiga/libmikmod/COPYING.LIB $(OUT)/COPYING-libmikmod.txt
+	cp amiga/icons/CriticalMass.info amiga/icons/ReadMe.info $(OUT)/
+	for f in COPYING.txt COPYING-libmikmod.txt Readme.html; do cp amiga/icons/ReadMe.info $(OUT)/$$f.info; done
+	cp amiga/icons/Folder.info $(OUT)/data.info
+	cp amiga/icons/CriticalMass-drawer.info dist/CriticalMass.info
+
+-include $(OBJS:.o=.d)
+
+clean:
+	rm -rf $(BUILD)
+
+.PHONY: all clean dist

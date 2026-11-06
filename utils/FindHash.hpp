@@ -30,6 +30,7 @@ _ValT* findHash(
     return ci->second;
 }
 
+#if 0
 template< class _KeyT, class _ValT >
 _ValT* findHash( 
     const _KeyT &trigger, 
@@ -44,5 +45,6 @@ _ValT* findHash(
 
     return ci->second;
 }
+#endif
 
 #endif

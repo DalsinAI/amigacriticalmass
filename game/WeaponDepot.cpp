@@ -32,7 +32,7 @@ WeaponDepot::~WeaponDepot()
 {
     XTRACE();
 
-    hash_map< string, Weapon*, hash<string> >::const_iterator ci;
+    __gnu_cxx::hash_map< string, Weapon*, __gnu_cxx::hash<string> >::const_iterator ci;
     for( ci=_weaponMap.begin(); ci!=_weaponMap.end(); ci++)
     {
         delete ci->second;

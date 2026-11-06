@@ -144,7 +144,7 @@ int OnlineUpdate::run(void *data)
 	curl_easy_setopt(handle, CURLOPT_WRITEDATA, data);
 	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(handle, CURLOPT_TIMEOUT, 30);
-	curl_easy_setopt(handle, CURLOPT_USERAGENT, PACKAGE " " VERSION " " OSNAME " (" __DATE__ " " __TIME__ ")");
+	curl_easy_setopt(handle, CURLOPT_USERAGENT, PACKAGE " " VERSION " " OSNAME);
 	curl_easy_setopt(handle, CURLOPT_URL, onlineUpdate->_updateURL.c_str());
 	//      curl_easy_setopt(handle, CURLOPT_REFERER, "None");
 

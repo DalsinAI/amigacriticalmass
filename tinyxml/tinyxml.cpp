@@ -23,6 +23,8 @@ distribution.
 
 #include "tinyxml.h"
 
+#include <cstring>
+
 
 TiXmlNode::TiXmlNode( NodeType _type )
 {

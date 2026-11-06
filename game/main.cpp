@@ -27,6 +27,7 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <zlib.h>
 
 void migrateConfig( void)
 {
@@ -138,7 +139,6 @@ void showInfo()
 {
     LOG_INFO << "----------------------------------" << endl;
     LOG_INFO << GAMETITLE << " " << GAMEVERSION 
-             << " - "__TIME__" "__DATE__
              << endl;
     LOG_INFO << "Copyright (C) 2001-2006 by Frank Becker" << endl;
     LOG_INFO << "Visit http://criticalmass.sourceforge.net" << endl;
@@ -169,9 +169,16 @@ void showVersions( void)
     LOG_INFO << "PNG Version " << png_get_header_version(NULL) << endl;
 }
  
+#ifdef __amigaos__
+extern "C" void amiga_start(void); /* amiga/amiga_start.c: into the drawer */
+#endif
+
 int main( int argc, char *argv[])
 {
     XTRACE();
+#ifdef __amigaos__
+    amiga_start();
+#endif
 
     showInfo();
     showVersions();

@@ -42,9 +42,9 @@ SelectableFactory *SelectableFactory::getFactory( const string &name)
 
 void SelectableFactory::cleanup( void)
 {
-    hash_map< const string, 
+    __gnu_cxx::hash_map< const string, 
               SelectableFactory*, 
-	      hash<const string> >::const_iterator ci;
+	      __gnu_cxx::hash<const string> >::const_iterator ci;
     for( ci=_sfMap.begin(); ci!=_sfMap.end(); ci++)
     {
 	SelectableFactory *sf = ci->second;

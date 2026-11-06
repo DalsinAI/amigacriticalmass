@@ -41,21 +41,20 @@ critter_SOURCES = \
         main.cpp
 
 LDADD = \
-	../curl/lib/libcurl.a \
 	../utils/libutils.a \
 	../utilssdl/libutilssdl.a \
 	../utilsgl/libutilsgl.a \
 	../tinyxml/libtinyxml.a
 
 if WIN32
-INCLUDES = -I../curl/include -I../tinyxml -I../utils -I../utilssdl -I../utilsgl -DDATA_DIR=\"./\"
+INCLUDES = -I../tinyxml -I../utils -I../utilssdl -I../utilsgl -DDATA_DIR=\"./\"
 LDADD += critter.res
 else
 
 if APPLE
-INCLUDES = -I../curl/include -I../tinyxml -I../utils -I../utilssdl -I../utilsgl -DDATA_DIR=\"/Contents/Resources/\"
+INCLUDES = -I../tinyxml -I../utils -I../utilssdl -I../utilsgl -DDATA_DIR=\"/Contents/Resources/\"
 else
-INCLUDES = -I../curl/include -I../tinyxml -I../utils -I../utilssdl -I../utilsgl -DDATA_DIR=\"$(pkgdatadir)/\"
+INCLUDES = -I../tinyxml -I../utils -I../utilssdl -I../utilsgl -DDATA_DIR=\"$(pkgdatadir)/\"
 endif
 
 endif
