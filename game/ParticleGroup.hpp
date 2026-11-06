@@ -86,7 +86,7 @@ public:
 
     static void destroyParticleTypes( void)
     {
-	hash_map< const string, ParticleType*, hash<const string> >::const_iterator ci;
+	__gnu_cxx::hash_map< const string, ParticleType*, __gnu_cxx::hash<const string> >::const_iterator ci;
 	for( ci=_particleTypeMap.begin(); ci!=_particleTypeMap.end(); ci++)
 	{
 	    //don't delete hero!

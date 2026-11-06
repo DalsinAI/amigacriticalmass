@@ -27,7 +27,7 @@ CallbackManager::~CallbackManager()
 {
     XTRACE();
 
-    hash_map< string, Callback*, hash<string> >::const_iterator ci;
+    __gnu_cxx::hash_map< string, Callback*, __gnu_cxx::hash<string> >::const_iterator ci;
     for( ci=_actionMap.begin(); ci!=_actionMap.end(); ci++)
     {
         delete ci->second;

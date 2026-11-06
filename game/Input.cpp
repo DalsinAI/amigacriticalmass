@@ -260,7 +260,7 @@ void Input::save( ofstream &outfile)
     XTRACE();
     outfile << "# --- Binding section --- " << endl;
 
-    hash_map< Trigger, Callback*, hash<Trigger> >::const_iterator ci;
+    __gnu_cxx::hash_map< Trigger, Callback*, __gnu_cxx::hash<Trigger> >::const_iterator ci;
     for( ci=_callbackMap.begin(); ci!=_callbackMap.end(); ci++)
     {
         outfile << "bind " 

@@ -43,7 +43,7 @@ bool isLittleEndian( void)
         case eBigEndian:
             return false;
         default:
-	    LOG_ERROR << "Unsupported endianess (PDP?). You are weird!" << endl;
+	    LOG_ERROR << "Unsupported endianness (PDP?). You are weird!" << endl;
 	    exit(-1);
     }
 

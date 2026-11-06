@@ -22,6 +22,8 @@
 #include <Endian.hpp>
 #include <WalkDirectory.hpp>
 
+#include <cstring>
+
 #ifdef WIN32
 const char PATH_SEPERATOR = '\\';
 #else

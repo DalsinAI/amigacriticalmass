@@ -15,6 +15,7 @@
 #ifndef _Value_hpp_
 #define _Value_hpp_
 
+#include <cstdlib>
 #include <stdio.h>
 #include <string>
 

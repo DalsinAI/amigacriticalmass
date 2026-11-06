@@ -206,14 +206,21 @@ void Packer::addDirectory(
         return;
     }
 
+    vector<string> filenames;
     dirent *dirEntry;
     while( (dirEntry = readdir( dir)) != 0)
     {
         string fileName = dirEntry->d_name;
         if( (fileName == ".") || (fileName == "..")) continue;
 
-        string fullName = dirName +PATH_SEPERATOR+ fileName;
-        addEntry( fullName, resourceName, relativePath, fileName);
+        filenames.push_back(fileName);
+    }
+    sort(filenames.begin(), filenames.end());
+
+    for (vector<string>::iterator fileName = filenames.begin(); fileName != filenames.end(); fileName++)
+    {
+        string fullName = dirName +PATH_SEPERATOR+ *fileName;
+        addEntry( fullName, resourceName, relativePath, *fileName);
     }
 }
 

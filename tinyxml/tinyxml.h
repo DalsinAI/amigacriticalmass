@@ -30,6 +30,7 @@ distribution.
 #pragma warning( disable : 4786 )
 #endif
 
+#include <cstdlib>
 #include <string>
 #include <stdio.h>
 #include <assert.h>
