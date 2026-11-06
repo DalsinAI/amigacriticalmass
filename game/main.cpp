@@ -169,9 +169,16 @@ void showVersions( void)
     LOG_INFO << "PNG Version " << png_get_header_version(NULL) << endl;
 }
  
+#ifdef __amigaos__
+extern "C" void amiga_start(void); /* amiga/amiga_start.c: into the drawer */
+#endif
+
 int main( int argc, char *argv[])
 {
     XTRACE();
+#ifdef __amigaos__
+    amiga_start();
+#endif
 
     showInfo();
     showVersions();
