@@ -100,6 +100,7 @@ dist: $(BUILD)/$(PROG) $(ICONS) AMIGA_PORT.md
 	cp data/music/lg-criti.xm data/music/Readme.txt $(OUT)/data/
 	find $(OUT)/data -name 'Makefile*' -delete
 	cp AMIGA_PORT.md $(OUT)/ReadMe
+	cp amiga/Controls $(OUT)/Controls
 	cp Readme.html $(OUT)/
 	cp COPYING $(OUT)/COPYING.txt
 	cp amiga/libmikmod/COPYING.LIB $(OUT)/COPYING-libmikmod.txt
